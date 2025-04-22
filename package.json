@@ -1,6 +1,6 @@
 {
   "name": "react-smart-storage",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "A lightweight React library to simplify localStorage and sessionStorage operations using TypeScript.",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
