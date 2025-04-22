@@ -1,0 +1,39 @@
+{
+  "name": "react-smart-storage",
+  "version": "1.0.0",
+  "description": "A lightweight React library to simplify localStorage and sessionStorage operations using TypeScript.",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --dts --format esm,cjs"
+  },
+  "keywords": [
+    "react",
+    "typescript",
+    "localStorage",
+    "sessionStorage",
+    "storage",
+    "react-library",
+    "npm-package",
+    "useStorage"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DeviPrasadKL/react-smart-storage.git"
+  },
+  "author": "Deviprasad",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/react": "^19.1.2",
+    "tsup": "^8.4.0",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.2"
+  },
+  "peerDependencies": {
+    "react": "^17.0.0 || ^18.0.0 || ^19.0.0"
+  }
+}
