@@ -1,8 +1,8 @@
 # 📦 react-smart-storage
 
-**`react-smart-storage`** is a lightweight, type-safe utility library for simplifying the usage of `localStorage` and `sessionStorage` in React applications using TypeScript.
+**`react-smart-storage`** is a lightweight, type-safe utility library for simplifying the usage of `localStorage` and `sessionStorage` in React applications using TypeScript. It also supports optional AES encryption for securely storing sensitive data.
 
-> 🚀 Clean APIs, ✨ Type-safe, 💡 Beginner-friendly
+> 🚀 Clean APIs, ✨ Type-safe, 🔐 Optional encryption, 💡 Beginner-friendly
 
 ---
 
@@ -19,24 +19,40 @@ npm i react-smart-storage
 ```bash
 import { setItem, getItem, removeItem, clearStorage } from 'react-smart-storage';
 ```
-2. Store a value in localStorage (ts)
+2. Store a value in localStorage (without encryption) (ts)
 ```bash
 setItem('user', { name: 'Deviprasad', role: 'admin' });
 ```
-3. Retrieve the value (ts)
+3. Retrieve the value (no encryption) (ts)
 ```bash
 const user = getItem<{ name: string; role: string }>('user');
 console.log(user?.name); // Output: Deviprasad
 ```
-4. Remove a single item (ts)
+4. Store an encrypted value (ts)
+```bash
+const secretKey = 'my-super-secret-key';
+
+setItem('secureUser', { name: 'Deviprasad', role: 'admin' }, 'local', true, secretKey);
+
+```
+5. Retrieve the encrypted value (ts)
+```bash
+const secretKey = 'my-super-secret-key';
+
+const secureUser = getItem<{ name: string; role: string }>('secureUser', 'local', true, secretKey);
+console.log(secureUser?.role); // Output: admin
+
+```
+
+6. Remove a specific item (ts)
 ```bash
 removeItem('user');
 ```
-5. Clear all storage (ts)
+7. Clear all storage (ts)
 ```bash
 clearStorage(); // Clears localStorage by default
 ```
-6. Use sessionStorage instead (ts)
+8. Use sessionStorage instead of localStorage (ts)
 ```bash
 setItem('sessionId', 'abc123', 'session');
 const sessionId = getItem<string>('sessionId', 'session');
@@ -47,6 +63,38 @@ const sessionId = getItem<string>('sessionId', 'session');
 ```bash
 type StorageType = 'local' | 'session';
 ```
+💾 setItem
+```bash
+setItem<T>(
+  key: string,
+  value: T,
+  type?: StorageType,       // 'local' or 'session' (default is 'local')
+  encrypt?: boolean,        // Enable encryption? (default is false)
+  hashKey?: string          // Required if encrypt is true
+): void;
+
+```
+🔍 getItem
+```bash
+getItem<T>(
+  key: string,
+  type?: StorageType,       // 'local' or 'session' (default is 'local')
+  encrypt?: boolean,        // Is the value encrypted? (default is false)
+  hashKey?: string          // Required if encrypt is true
+): T | null;
+
+```
+
+❌ removeItem
+```bash
+removeItem(key: string, type?: StorageType): void;
+```
+
+🧹 clearStorage
+```bash
+clearStorage(type?: StorageType): void;
+```
+
 ---
 ## 💡 React Example
 ```bash
@@ -55,9 +103,11 @@ import { setItem, getItem } from 'react-smart-storage';
 
 const Profile = () => {
   useEffect(() => {
-    setItem('user', { name: 'Deviprasad', role: 'admin' });
+    const hashKey = 'my-secret-key';
 
-    const user = getItem<{ name: string; role: string }>('user');
+    setItem('user', { name: 'Deviprasad', role: 'admin' }, 'local', true, hashKey);
+
+    const user = getItem<{ name: string; role: string }>('user', 'local', true, hashKey);
     console.log(user?.role); // Output: admin
   }, []);
 
@@ -65,6 +115,7 @@ const Profile = () => {
 };
 
 export default Profile;
+
 ```
 ✅ Why use this?  
 ---
