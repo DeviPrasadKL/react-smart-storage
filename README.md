@@ -117,19 +117,24 @@ const Profile = () => {
 export default Profile;
 
 ```
-✅ Why use this?  
 ---
+
+## ✅ Why use this?  
+
 🧠 Simple and intuitive API
 
-🔒 Fully TypeScript supported
+🔒 Optional AES encryption support
+
+✨ Fully TypeScript supported
 
 🚀 Fast and lightweight
 
 📦 Works out of the box
 
 💻 Supports both localStorage and sessionStorage
+
 ---
-🧑‍💻 Contributing
+## 🧑‍💻 Contributing
 We welcome contributions! Please read our CONTRIBUTING.md for guidelines on how to help improve the project.
 
 📄 License
