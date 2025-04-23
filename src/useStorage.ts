@@ -6,12 +6,19 @@ const getStorage = (type: StorageType): Storage => {
   return type === 'local' ? localStorage : sessionStorage;
 };
 
+// 🔐 Internally hash the key using SHA256
+const getHashedKey = (key: string): string => {
+  return CryptoJS.SHA256(key).toString();
+};
+
 const encryptData = (value: any, hashKey: string): string => {
-  return CryptoJS.AES.encrypt(JSON.stringify(value), hashKey).toString();
+  const hashedKey = getHashedKey(hashKey);
+  return CryptoJS.AES.encrypt(JSON.stringify(value), hashedKey).toString();
 };
 
 const decryptData = <T>(encryptedValue: string, hashKey: string): T | null => {
-  const bytes = CryptoJS.AES.decrypt(encryptedValue, hashKey);
+  const hashedKey = getHashedKey(hashKey);
+  const bytes = CryptoJS.AES.decrypt(encryptedValue, hashedKey);
   const decryptedData = bytes.toString(CryptoJS.enc.Utf8);
   return decryptedData ? JSON.parse(decryptedData) as T : null;
 };
@@ -24,7 +31,7 @@ const decryptData = <T>(encryptedValue: string, hashKey: string): T | null => {
  * @param value - The value to store.
  * @param type - Optional. The type of storage to use. Defaults to 'local'.
  * @param encrypt - Optional. Whether to encrypt the value. Defaults to false.
- * @param hashKey - Optional. Encryption key (required only if encrypt is true).
+ * @param hashKey - Optional. A passphrase used to derive the encryption key.
  */
 export const setItem = <T>(
   key: string,
@@ -53,7 +60,7 @@ export const setItem = <T>(
  * @param key - The key of the item to retrieve.
  * @param type - Optional. The type of storage to use. Defaults to 'local'.
  * @param encrypt - Optional. Whether the value is encrypted. Defaults to false.
- * @param hashKey - Optional. Encryption key (required only if encrypt is true).
+ * @param hashKey - Optional. A passphrase used to derive the encryption key.
  * @returns The value as T, or null if not found or failed to decrypt.
  */
 export const getItem = <T>(
