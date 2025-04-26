@@ -33,56 +33,82 @@ __export(index_exports, {
   clearStorage: () => clearStorage,
   getItem: () => getItem,
   removeItem: () => removeItem,
+  removeItems: () => removeItems,
   setItem: () => setItem
 });
 module.exports = __toCommonJS(index_exports);
 
 // src/useStorage.ts
-var CryptoJS = __toESM(require("crypto-js"));
+var import_crypto_js = __toESM(require("crypto-js"));
 var getStorage = (type) => {
   return type === "local" ? localStorage : sessionStorage;
 };
 var getHashedKey = (key) => {
-  return CryptoJS.SHA256(key).toString();
+  return import_crypto_js.default.SHA256(key).toString();
 };
 var encryptData = (value, hashKey) => {
   const hashedKey = getHashedKey(hashKey);
-  return CryptoJS.AES.encrypt(JSON.stringify(value), hashedKey).toString();
+  return import_crypto_js.default.AES.encrypt(JSON.stringify(value), hashedKey).toString();
 };
 var decryptData = (encryptedValue, hashKey) => {
   const hashedKey = getHashedKey(hashKey);
-  const bytes = CryptoJS.AES.decrypt(encryptedValue, hashedKey);
-  const decryptedData = bytes.toString(CryptoJS.enc.Utf8);
+  const bytes = import_crypto_js.default.AES.decrypt(encryptedValue, hashedKey);
+  const decryptedData = bytes.toString(import_crypto_js.default.enc.Utf8);
   return decryptedData ? JSON.parse(decryptedData) : null;
 };
-var setItem = (key, value, type = "local", encrypt = false, hashKey) => {
+var setItem = (key, value, options) => {
+  const {
+    type = "local",
+    encrypt = false,
+    hashKey,
+    expiresIn
+  } = options || {};
   const storage = getStorage(type);
+  const storedValue = {
+    value,
+    expiresAt: expiresIn ? Date.now() + expiresIn * 1e3 : void 0
+  };
   if (encrypt) {
     if (!hashKey) {
       throw new Error("hashKey is required for encryption");
     }
-    const encryptedValue = encryptData(value, hashKey);
+    const encryptedValue = encryptData(storedValue, hashKey);
     storage.setItem(key, encryptedValue);
   } else {
-    storage.setItem(key, JSON.stringify(value));
+    storage.setItem(key, JSON.stringify(storedValue));
   }
 };
-var getItem = (key, type = "local", encrypt = false, hashKey) => {
+var getItem = (key, options) => {
+  const {
+    type = "local",
+    encrypt = false,
+    hashKey
+  } = options || {};
   const storage = getStorage(type);
   const storedValue = storage.getItem(key);
   if (!storedValue) return null;
-  if (encrypt) {
-    if (!hashKey) {
-      throw new Error("hashKey is required for decryption");
-    }
-    return decryptData(storedValue, hashKey);
-  } else {
-    return JSON.parse(storedValue);
+  let parsed = null;
+  try {
+    parsed = encrypt ? decryptData(storedValue, hashKey) : JSON.parse(storedValue);
+  } catch (e) {
+    return null;
   }
+  if (!parsed) return null;
+  if (parsed.expiresAt && parsed.expiresAt < Date.now()) {
+    storage.removeItem(key);
+    return null;
+  }
+  return parsed.value;
 };
 var removeItem = (key, type = "local") => {
   const storage = getStorage(type);
   storage.removeItem(key);
+};
+var removeItems = (keys, type = "local") => {
+  const storage = getStorage(type);
+  keys.forEach((key) => {
+    storage.removeItem(key);
+  });
 };
 var clearStorage = (type = "local") => {
   const storage = getStorage(type);
@@ -93,5 +119,6 @@ var clearStorage = (type = "local") => {
   clearStorage,
   getItem,
   removeItem,
+  removeItems,
   setItem
 });
