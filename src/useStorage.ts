@@ -170,3 +170,58 @@ export const clearStorage = (type: StorageType = 'local') => {
   const storage = getStorage(type);
   storage.clear();
 };
+
+/**
+ * Returns storage usage details (used and free space) for localStorage or sessionStorage.
+ *
+ * @param type - 'local' or 'session'. Defaults to 'local'.
+ * @returns An object containing used bytes and estimated free bytes.
+ *
+ * @example
+ * const usage = getStorageUsage(); // Gets localStorage usage
+ * const sessionUsage = getStorageUsage('session'); // Gets sessionStorage usage
+ */
+export const getStorageUsage = (type: StorageType = 'local') => {
+  const storage = getStorage(type);
+  let usedBytes = 0;
+
+  for (let i = 0; i < storage.length; i++) {
+    const key = storage.key(i);
+    if (key) {
+      const value = storage.getItem(key);
+      if (value) {
+        usedBytes += key.length + value.length;
+      }
+    }
+  }
+
+  // Assume 5MB limit (commonly browser default, but varies)
+  const maxBytes = 5 * 1024 * 1024;
+  const freeBytes = Math.max(0, maxBytes - usedBytes);
+
+  return {
+    usedBytes,
+    freeBytes,
+    maxBytes,
+    usedMB: (usedBytes / (1024 * 1024)).toFixed(2),
+    freeMB: (freeBytes / (1024 * 1024)).toFixed(2),
+    maxMB: (maxBytes / (1024 * 1024)).toFixed(2),
+  };
+};
+
+/**
+ * Returns a human-readable summary of storage usage.
+ *
+ * @param type - 'local' or 'session'. Defaults to 'local'.
+ * @returns A string summary of storage usage.
+ *
+ * @example
+ * const summary = getStorageUsageSummary(); // "Used 0.12MB of 5.00MB (2.4%)"
+ */
+export const getStorageUsageSummary = (type: StorageType = 'local') => {
+  const { usedMB, maxMB } = getStorageUsage(type);
+  const percentage = ((parseFloat(usedMB) / parseFloat(maxMB)) * 100).toFixed(2);
+
+  return `Used ${usedMB}MB of ${maxMB}MB (${percentage}%)`;
+};
+
