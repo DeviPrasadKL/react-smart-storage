@@ -74,9 +74,39 @@ var clearStorage = (type = "local") => {
   const storage = getStorage(type);
   storage.clear();
 };
+var getStorageUsage = (type = "local") => {
+  const storage = getStorage(type);
+  let usedBytes = 0;
+  for (let i = 0; i < storage.length; i++) {
+    const key = storage.key(i);
+    if (key) {
+      const value = storage.getItem(key);
+      if (value) {
+        usedBytes += key.length + value.length;
+      }
+    }
+  }
+  const maxBytes = 5 * 1024 * 1024;
+  const freeBytes = Math.max(0, maxBytes - usedBytes);
+  return {
+    usedBytes,
+    freeBytes,
+    maxBytes,
+    usedMB: (usedBytes / (1024 * 1024)).toFixed(2),
+    freeMB: (freeBytes / (1024 * 1024)).toFixed(2),
+    maxMB: (maxBytes / (1024 * 1024)).toFixed(2)
+  };
+};
+var getStorageUsageSummary = (type = "local") => {
+  const { usedMB, maxMB } = getStorageUsage(type);
+  const percentage = (parseFloat(usedMB) / parseFloat(maxMB) * 100).toFixed(2);
+  return `Used ${usedMB}MB of ${maxMB}MB (${percentage}%)`;
+};
 export {
   clearStorage,
   getItem,
+  getStorageUsage,
+  getStorageUsageSummary,
   removeItem,
   removeItems,
   setItem

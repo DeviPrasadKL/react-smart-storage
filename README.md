@@ -81,54 +81,25 @@ clearStorage(); // Defaults to localStorage
 clearStorage('session'); // Clears sessionStorage
 ```
 
----
-📚 API Reference
-🔒 StorageType (ts)
+11. Get Storage Usage Details (ts)
 ```bash
-type StorageType = 'local' | 'session';
-```
-💾 setItem
-```bash
-setItem<T>(
-  key: string,
-  value: T,
-  options?: {
-    type?: StorageType;     // 'local' or 'session' (default: 'local')
-    encrypt?: boolean;      // Should encrypt the data? (default: false)
-    hashKey?: string;       // Required if encrypt is true
-    expiresIn?: number;     // Expiration time in seconds (e.g., 60 = 1 min)
-  }
-): void;
-
-```
-🔍 getItem
-```bash
-getItem<T>(
-  key: string,
-  options?: {
-    type?: StorageType;     // 'local' or 'session' (default: 'local')
-    encrypt?: boolean;      // Is the data encrypted? (default: false)
-    hashKey?: string;       // Required if encrypt is true
-  }
-): T | null;
-
+const usage = getStorageUsage(); 
+console.log(usage);
+// { usedBytes: 1234, freeBytes: 5241646, maxBytes: 5242880, usedMB: "0.00", freeMB: "4.99", maxMB: "5.00" }
 ```
 
-❌ removeItem
+12. Get Storage Usage Summary (ts)
 ```bash
-removeItem(key: string, type?: StorageType): void;
-```
-
-🧹 clearStorage
-```bash
-clearStorage(type?: StorageType): void;
+const summary = getStorageUsageSummary();
+console.log(summary);
+// Output: "Used 0.12MB of 5.00MB (2.4%)"
 ```
 
 ---
 ## 💡 React Example
 ```bash
 import React, { useEffect } from 'react';
-import { setItem, getItem, removeItem, clearStorage, removeItems } from 'react-smart-storage';
+import { setItem, getItem, removeItem, clearStorage, removeItems, getStorageUsageSummary, getStorageUsage } from 'react-smart-storage';
 
 export default function Storage() {
 
@@ -161,6 +132,14 @@ export default function Storage() {
         removeItems(['role', 'user'], 'local');
     }
 
+    const getUsageData = () => {
+        // Gives the storage usage assuming 5MB limit (commonly browser default, but varies)
+        const storageSummary = getStorageUsageSummary();
+        const storageUsage = getStorageUsage();
+        console.log("Summaay = ", storageSummary);
+        console.log("Usage Details = ", storageUsage);
+    }
+
     return (
         <>
             <h2>Smart storage</h2>
@@ -177,6 +156,7 @@ export default function Storage() {
                 <button onClick={removeMultipleKeys}>Remove Multiple keys</button>
                 <button onClick={() => removeItem('user')}>Remove User</button>
                 <button onClick={() => clearStorage()}>Clear data</button>
+                <button onClick={getUsageData}>Get Usage</button>
             </div>
         </>
     );
@@ -192,6 +172,8 @@ export default function Storage() {
 🔒 Optional AES encryption support
 
 ⏳ Built-in expiration support for auto-cleanup
+
+📊 Detailed storage usage info — Know exactly how much space you’re using and what's free.
 
 ✨ Fully TypeScript supported
 
